@@ -1,10 +1,7 @@
 package com.parc.controller;
 
 import com.parc.model.Restaurant;
-import com.parc.service.RestaurantService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.parc.repository.RestaurantRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,39 +10,36 @@ import java.util.List;
 @RequestMapping("/api/restaurants")
 public class RestaurantController {
 
-    @Autowired
-    private RestaurantService restaurantService;
+    private final RestaurantRepository repo;
 
-    @GetMapping
-    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        List<Restaurant> restaurants = restaurantService.findAll();
-        return new ResponseEntity<>(restaurants, HttpStatus.OK);
+    public RestaurantController(RestaurantRepository repo) {
+        this.repo = repo;
     }
 
-    @PostMapping
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
-        Restaurant createdRestaurant = restaurantService.save(restaurant);
-        return new ResponseEntity<>(createdRestaurant, HttpStatus.CREATED);
+    @GetMapping
+    public List<Restaurant> getAll() {
+        return repo.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
-        Restaurant restaurant = restaurantService.findById(id);
-        return restaurant != null ? new ResponseEntity<>(restaurant, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public Restaurant getById(@PathVariable Long id) {
+        return repo.findById(id).orElseThrow();
+    }
+
+    @PostMapping
+    public Restaurant create(@RequestBody Restaurant r) {
+        return repo.save(r);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id, @RequestBody Restaurant restaurant) {
-        Restaurant updatedRestaurant = restaurantService.update(id, restaurant);
-        return updatedRestaurant != null ? new ResponseEntity<>(updatedRestaurant, HttpStatus.OK) : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public Restaurant update(@PathVariable Long id, @RequestBody Restaurant updated) {
+        Restaurant r = repo.findById(id).orElseThrow();
+        r.setNom(updated.getNom());
+        return repo.save(r);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRestaurant(@PathVariable Long id) {
-        if (restaurantService.delete(id)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public void delete(@PathVariable Long id) {
+        repo.deleteById(id);
     }
 }
