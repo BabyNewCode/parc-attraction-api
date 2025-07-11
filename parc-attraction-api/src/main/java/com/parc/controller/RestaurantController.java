@@ -1,45 +1,52 @@
 package com.parc.controller;
 
+import com.parc.model.Personnel;
 import com.parc.model.Restaurant;
+import com.parc.repository.PersonnelRepository;
 import com.parc.repository.RestaurantRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/restaurants")
-public class RestaurantController {
+@RequestMapping("/api/personnel")
+public class PersonnelController {
 
-    private final RestaurantRepository repo;
+    private final PersonnelRepository personnelRepo;
+    private final RestaurantRepository restaurantRepo;
 
-    public RestaurantController(RestaurantRepository repo) {
-        this.repo = repo;
+    public PersonnelController(PersonnelRepository personnelRepo, RestaurantRepository restaurantRepo) {
+        this.personnelRepo = personnelRepo;
+        this.restaurantRepo = restaurantRepo;
     }
 
     @GetMapping
-    public List<Restaurant> getAll() {
-        return repo.findAll();
+    public List<Personnel> getAll() {
+        return personnelRepo.findAll();
     }
 
     @GetMapping("/{id}")
-    public Restaurant getById(@PathVariable Long id) {
-        return repo.findById(id).orElseThrow();
+    public Personnel getById(@PathVariable Long id) {
+        return personnelRepo.findById(id).orElseThrow();
     }
 
     @PostMapping
-    public Restaurant create(@RequestBody Restaurant r) {
-        return repo.save(r);
+    public Personnel create(@RequestBody Personnel p, @RequestParam Long restaurantId) {
+        Restaurant r = restaurantRepo.findById(restaurantId).orElseThrow();
+        p.setRestaurant(r);
+        return personnelRepo.save(p);
     }
 
     @PutMapping("/{id}")
-    public Restaurant update(@PathVariable Long id, @RequestBody Restaurant updated) {
-        Restaurant r = repo.findById(id).orElseThrow();
-        r.setNom(updated.getNom());
-        return repo.save(r);
+    public Personnel update(@PathVariable Long id, @RequestBody Personnel updated) {
+        Personnel p = personnelRepo.findById(id).orElseThrow();
+        p.setNom(updated.getNom());
+        p.setRole(updated.getRole());
+        return personnelRepo.save(p);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        repo.deleteById(id);
+        personnelRepo.deleteById(id);
     }
 }
