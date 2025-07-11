@@ -1,44 +1,43 @@
 package com.parc.controller;
 
-import com.parc.dto.UserDto;
-import com.parc.model.User;
-import com.parc.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.parc.model.*;
+import com.parc.repository.*;
+import com.parc.service.*;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserRepository userRepo;
+    private final TicketRepository ticketRepo;
+    private final UserService userService;
+
+    public UserController(UserRepository userRepo, TicketRepository ticketRepo, UserService userService) {
+        this.userRepo = userRepo;
+        this.ticketRepo = ticketRepo;
+        this.userService = userService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.findAll();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    public List<User> getAll() {
+        return userRepo.findAll();
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody UserDto userDto) {
-        User createdUser = userService.createUser(userDto);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public User create(@RequestBody User u) {
+        return userRepo.save(u);
     }
 
     @PatchMapping("/{id}/ban")
-    public ResponseEntity<Void> banUser(@PathVariable Long id) {
-        userService.banUser(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public void ban(@PathVariable Long id) {
+        userService.bannir(id);
     }
 
     @GetMapping("/{id}/tickets")
-    public ResponseEntity<List<Ticket>> getUserTickets(@PathVariable Long id) {
-        List<Ticket> tickets = userService.getUserTickets(id);
-        return new ResponseEntity<>(tickets, HttpStatus.OK);
+    public List<Ticket> getTickets(@PathVariable Long id) {
+        User u = userRepo.findById(id).orElseThrow();
+        return u.getBillets();
     }
 }
