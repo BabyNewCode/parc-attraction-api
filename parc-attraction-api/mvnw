@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+# Maven wrapper script
+
+MAVEN_VERSION=3.8.6
+MVN_CMD="mvn"
+
+if [ -n "$MAVEN_OPTS" ]; then
+    MVN_CMD="$MVN_CMD -DskipTests"
+fi
+
+if [ -f "$HOME/.m2/repository/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip" ]; then
+    echo "Using cached Maven version $MAVEN_VERSION"
+else
+    echo "Downloading Maven version $MAVEN_VERSION"
+    curl -sL "https://archive.apache.org/dist/maven/binaries/apache-maven-$MAVEN_VERSION-bin.zip" -o "$HOME/.m2/repository/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip"
+    unzip -q "$HOME/.m2/repository/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip" -d "$HOME/.m2/repository/org/apache/maven/apache-maven/$MAVEN_VERSION/"
+fi
+
+export MAVEN_HOME="$HOME/.m2/repository/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION"
+export PATH="$MAVEN_HOME/bin:$PATH"
+
+exec "$MVN_CMD" "$@"

@@ -1,0 +1,1 @@
+:: This file is the Windows version of the Maven wrapper script. It is intentionally left blank. ::
