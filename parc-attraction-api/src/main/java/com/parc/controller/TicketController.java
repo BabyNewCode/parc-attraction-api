@@ -1,8 +1,7 @@
 package com.parc.controller;
 
-import com.parc.dto.TicketDto;
+import com.parc.model.Ticket;
 import com.parc.service.TicketService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,7 +15,7 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<?> buyTicket(@RequestParam Long userId, @RequestBody TicketDto ticketDto) {
-        return ResponseEntity.ok(ticketService.buyTicket(userId, ticketDto));
+    public Ticket acheter(@RequestParam Long userId, @RequestParam double prix) {
+        return ticketService.acheter(userId, prix);
     }
 }
